@@ -1,0 +1,8 @@
+.ipynb_checkpoints
+geckodriver.*
+
+data/*
+!data/.gitkeep
+
+temp/*
+!temp/.gitkeep
