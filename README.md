@@ -13,7 +13,7 @@ gcloud beta compute instances set-name vm-current-name --new-name=vm-new-name
 ```
 
 #### To Do
-- [ ] Handle cases where cities doesn't have Census data;
-- [ ] Pass UF code as parameter to the main script;
+- [x] Handle cases where cities doesn't have Census data;
+- [ ] Create a .py file, pasing the UF code as parameter;
 - [ ] Fix the exception counter;
 - [ ] Implement the logging library;
