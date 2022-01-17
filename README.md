@@ -16,6 +16,13 @@ To rename VM instances:
 gcloud beta compute instances set-name vm-current-name --new-name=vm-new-name
 ```
 
+To find and delete empty folders:
+
+```sh
+find . -type d -empty -print
+find . -type d -empty -delete
+```
+
 ## To Do
 
 - [x] Handle cases where cities doesn't have Census data;
