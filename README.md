@@ -20,6 +20,7 @@ gcloud beta compute instances set-name vm-current-name --new-name=vm-new-name
 
 - [x] Handle cases where cities doesn't have Census data;
 - [x] Fix IndexError exception;
+- [x] Fix KeyboardInterrupt exception;
 - [ ] Create a .py file, pasing the UF code as parameter;
 - [ ] Fix the exception counter;
 - [ ] Implement the logging library;

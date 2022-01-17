@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[34]:
-
-
 import chardet
 import glob
 import os
@@ -14,9 +8,6 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-
-
-# In[35]:
 
 
 chrome_options = Options()
@@ -30,10 +21,6 @@ chrome_options.add_experimental_option('prefs', {
     'safebrowsing.enabled': True
 })
 
-
-# In[36]:
-
-
 def clear_files():
     temp_folder = os.getcwd() + '/temp'
     
@@ -41,19 +28,11 @@ def clear_files():
         if item.endswith('.csv'):
             os.remove(os.path.join(temp_folder, item))
 
-
-# In[37]:
-
-
 def get_encoding(file):
     with open(f'{file}', 'rb') as f:
         result = chardet.detect(f.read())
         
     return result['encoding']
-
-
-# In[38]:
-
 
 def is_file_correct(file, year, city):
     encoding = get_encoding(file)
@@ -70,11 +49,7 @@ def is_file_correct(file, year, city):
     except:
         return False
 
-
-# In[39]:
-
-
-def get_file(year, city):
+def get_file(state, city, year):
     print(f"Getting data from {city}/{year}...", end = ' ')
     
     browser = webdriver.Chrome(options = chrome_options)
@@ -102,18 +77,14 @@ def get_file(year, city):
     file = glob.glob(f"{os.getcwd()}/temp/*csv")[0]
 
     if is_file_correct(file, year, city):
-        os.rename(f"{file}", f"{os.getcwd()}/data/{city}/{str(year)}.csv")
+        os.rename(f"{file}", f"{os.getcwd()}/data/{state}/{city}/{str(year)}.csv")
         print('Done.')
     else:
         print('Error.')
         clear_files()
-        get_file(year, city)
+        get_file(state, city, year)
 
     browser.close()
-
-
-# In[40]:
-
 
 def get_cities(state_code):
     print(f"Getting cities from state code {state_code}...", end = ' ')
@@ -135,107 +106,84 @@ def get_cities(state_code):
     
     return cities[:-1]
 
-
-# In[47]:
-
-
-def get_restart_point(cities):
+def get_restart_point(state, cities):
+    completed = []
+    
     for city in cities:
-        folder = f"{os.getcwd()}/data/{city}"
-
+        folder = f"{os.getcwd()}/data/{state}/{city}"
+        
         if os.path.exists(folder):
             files = glob.glob(f"{folder}/*.csv")
-            remaining_cities = cities[cities.index(city):]
-
-            if len(files) == 21:
-                pass
-            elif len(files) == 0:
-                return remaining_cities, 2000
-            else:
-                year = int(sorted(files)[-1][-8:-4]) + 1
                 
-                return remaining_cities, year
-        else:
-            remaining_cities = cities[cities.index(city):]
+            if len(files) == 21:
+                completed.append(city)
 
+    remaining = [city for city in cities if city not in completed]
 
-# In[42]:
+    for city in remaining:
+        folder = f"{os.getcwd()}/data/{state}/{city}"
+        
+        if os.path.exists(folder):
+            files = glob.glob(f"{folder}/*.csv")
+            
+            if len(files) > 0:
+                remaining.remove(city)
+                remaining.insert(0, city)
+                year = int(sorted(files)[-1][-8:-4]) + 1
+            
+                return remaining, year
+            else:
+                remaining.remove(city)
+                remaining.insert(0, city)
+            
+                return remaining, 2000
+                            
+    return remaining, 2000
 
-
-def collect_data(cities, year):
+def collect_data(state, cities, year):
     for city in cities:
-        if not os.path.exists(f"{os.getcwd()}/data/{city}"):
-            os.makedirs(f"data/{city}")
+        if not os.path.exists(f"{os.getcwd()}/data/{state}/{city}"):
+            os.makedirs(f"data/{state}/{city}")
         
         for i in range(year, 2021):
             try:
-                get_file(i, city)
+                get_file(state, city, i)
             except IndexError:
-                with open(f"data/{city}/{year}.csv", 'w') as f:
-                    f.write(f"No data for city {city} in {year}.")
+                with open(f"data/{state}/{city}/{i}.csv", 'w') as f:
+                    f.write(f"No data for city {city} in {i}.")
                 
-                print(f"No data for city {city} in {year}.")
-        
+                print(f"No data for city {city} in {i}.")
+
             year = 2000 if i == 2020 else year
 
-
-# In[43]:
-
-
-def main(cities, year, exceptions = 0):
+def main(state, cities, year, exceptions = 0):
     clear_files()
     
     try:
-        collect_data(cities, year)
-    except:
+        collect_data(state, cities, year)
+    except KeyboardInterrupt:
+        print("\nScript interrupted.")
+    except Exception:
         print(f"Exception Thrown ({exceptions + 1}).")
         
         if exceptions < 14:
-            cities, year = get_restart_point(cities)
+            cities, year = get_restart_point(state, cities)
             main(cities, year, exceptions + 1)
         else:
             print(f"Stopped after {exceptions + 1} exceptions.")
             print("The script is going to pause for 30 minutes and then return")
             
             time.sleep(1800)
-            cities, year = get_restart_point(cities)
+            cities, year = get_restart_point(state, cities)
             main(cities, year)
             
-    print("All data collected.")
+    else:
+        print("All data collected.")
 
-
-# In[44]:
-
-
-all_cities = get_cities(43)
-
-
-# In[45]:
-
-
-# with open('codes/43.txt', 'w') as f:
-#     f.write('\n'.join(all_cities))
-
-# file = open('codes/43.txt', 'r')
-# codes = file.read()
-# all_cities = codes.split('\n')
-# file.close()
-
-
-# In[48]:
-
-
-cities, year = get_restart_point(all_cities)
-
-
-# In[49]:
-
+state = 42
+all_cities = get_cities(state)
+cities, year = get_restart_point(state, all_cities)
 
 print(f"{len(all_cities)} cities at total.\n{len(cities)} cities remaining.")
 
-
-# In[51]:
-
-
-main(cities, year)
-
+main(state, cities, year)
