@@ -104,7 +104,10 @@ def get_cities(state_code):
     browser.close()
     print('Done.')
     
-    return cities[:-1]
+    if state_code == 53:
+        return cities
+    else:
+        return cities[:-1]
 
 def get_restart_point(state, cities):
     completed = []
@@ -180,10 +183,11 @@ def main(state, cities, year, exceptions = 0):
     else:
         print("All data collected.")
 
-state = 42
+state = 53
 all_cities = get_cities(state)
 cities, year = get_restart_point(state, all_cities)
 
 print(f"{len(all_cities)} cities at total.\n{len(cities)} cities remaining.")
+print(f"Restarting from {cities[0]}/{year}...")
 
 main(state, cities, year)
