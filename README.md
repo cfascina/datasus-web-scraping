@@ -30,8 +30,8 @@ find . -type d -empty -delete
 - [x] Fix KeyboardInterrupt exception;
 - [X] Create .py file from notebook;
 - [X] Log end message just once;
+- [X] Create script to save city codes into respective files;
 - [ ] Implement sys.argv for state code as parameter;
 - [ ] Fix the exception counter;
 - [ ] Implement the logging library;
-- [ ] Create script to save city codes into respective files;
 - [ ] Reprocess cities with no data (double check);
