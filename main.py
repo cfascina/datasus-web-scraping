@@ -166,28 +166,33 @@ def main(state, cities, year, exceptions = 0):
         collect_data(state, cities, year)
     except KeyboardInterrupt:
         print("\nScript interrupted.")
-    except Exception:
+    except Exception as e:
         print(f"Exception Thrown ({exceptions + 1}).")
         
         if exceptions < 14:
             cities, year = get_restart_point(state, cities)
-            main(cities, year, exceptions + 1)
+            main(state, cities, year, exceptions + 1)
         else:
             print(f"Stopped after {exceptions + 1} exceptions.")
             print("The script is going to pause for 30 minutes and then return")
             
             time.sleep(1800)
             cities, year = get_restart_point(state, cities)
-            main(cities, year)
-            
+            main(state, cities, year)            
     else:
         print("All data collected.")
 
-state = 53
-all_cities = get_cities(state)
+state = 35
+
+with open(f"codes/{state}.txt", 'r') as f:
+    all_cities = f.read().splitlines()
+
 cities, year = get_restart_point(state, all_cities)
 
-print(f"{len(all_cities)} cities at total.\n{len(cities)} cities remaining.")
-print(f"Restarting from {cities[0]}/{year}...")
+print(f"""{len(all_cities)} cities at total.
+{len(all_cities) - len(cities)} collected.
+{len(cities)} cities remaining.
+Starting at {cities[0]}/{year}.\
+""")
 
 main(state, cities, year)
