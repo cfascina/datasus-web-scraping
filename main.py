@@ -159,7 +159,7 @@ def collect_data(state, cities, year):
 
             year = 2000 if i == 2020 else year
 
-def main(state, cities, year, exceptions = 0):
+def main(state, cities, year, exceptions):
     clear_files()
     
     try:
@@ -169,16 +169,16 @@ def main(state, cities, year, exceptions = 0):
     except Exception as e:
         print(f"Exception Thrown ({exceptions + 1}).")
         
-        if exceptions < 14:
+        if exceptions < 4:
             cities, year = get_restart_point(state, cities)
             main(state, cities, year, exceptions + 1)
         else:
             print(f"Stopped after {exceptions + 1} exceptions.")
-            print("The script is going to pause for 30 minutes and then return")
+            print("The script is going to pause for 30 minutes and then return.")
             
             time.sleep(1800)
             cities, year = get_restart_point(state, cities)
-            main(state, cities, year)            
+            main(state, cities, year, exceptions = 0)            
     else:
         print("All data collected.")
 
@@ -195,4 +195,4 @@ print(f"""{len(all_cities)} cities at total.
 Starting at {cities[0]}/{year}.\
 """)
 
-main(state, cities, year)
+main(state, cities, year, exceptions = 0)
