@@ -3,23 +3,13 @@ import glob
 import os
 import pandas as pd
 import random
+import sys
 import time
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
-
-chrome_options = Options()
-chrome_options.add_argument('--headless')
-chrome_options.add_argument('--no-sandbox')
-chrome_options.add_argument('--disable-dev-shm-usage')
-chrome_options.add_experimental_option('prefs', {
-    'download.default_directory': f"{os.getcwd()}/temp",
-    'download.Prompt_for_download': False,
-    'download.directory_upgrade': True,
-    'safebrowsing.enabled': True
-})
 
 def clear_files():
     temp_folder = os.getcwd() + '/temp'
@@ -182,17 +172,42 @@ def main(state, cities, year, exceptions):
     else:
         print("All data collected.")
 
-state = 35
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument('--disable-dev-shm-usage')
+chrome_options.add_experimental_option('prefs', {
+    'download.default_directory': f"{os.getcwd()}/temp",
+    'download.Prompt_for_download': False,
+    'download.directory_upgrade': True,
+    'safebrowsing.enabled': True
+})
 
-with open(f"codes/{state}.txt", 'r') as f:
-    all_cities = f.read().splitlines()
+state_codes = [
+    11, 12, 13, 14, 15, 16, 17,
+    21, 22, 23, 24, 25, 26, 27, 28, 29,
+    31, 32, 33, 35,
+    41, 42, 43,
+    50, 51, 52, 53
+]
 
-cities, year = get_restart_point(state, all_cities)
+if len(sys.argv) != 2:
+    print('Wrong number of arguments.')
+else:
+    state_code = int(sys.argv[1])
 
-print(f"""{len(all_cities)} cities at total.
-{len(all_cities) - len(cities)} collected.
-{len(cities)} cities remaining.
-Starting at {cities[0]}/{year}.\
-""")
+    if state_code not in state_codes:
+        print('The argument must a state code.')
+    else:
+        with open(f"codes/{state_code}.txt", 'r') as f:
+            all_cities = f.read().splitlines()
 
-main(state, cities, year, exceptions = 0)
+        cities, year = get_restart_point(state_code, all_cities)
+
+        print(f"""{len(all_cities)} cities at total.
+        {len(all_cities) - len(cities)} collected.
+        {len(cities)} cities remaining.
+        Starting at {cities[0]}/{year}.\
+        """)
+
+        main(state_code, cities, year, exceptions = 0)
