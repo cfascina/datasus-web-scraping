@@ -1,8 +1,3 @@
 .ipynb_checkpoints
+.venv
 geckodriver.*
-
-data/*
-!data/.gitkeep
-
-temp/*
-!temp/.gitkeep
