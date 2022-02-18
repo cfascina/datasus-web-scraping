@@ -22,17 +22,3 @@ To find and delete empty folders:
 find . -type d -empty -print
 find . -type d -empty -delete
 ```
-
-## To Do
-
-- [x] Handle cases where cities doesn't have Census data;
-- [x] Fix IndexError exception;
-- [x] Fix KeyboardInterrupt exception;
-- [X] Create .py file from notebook;
-- [X] Log end message just once;
-- [X] Create script to save city codes into respective files;
-- [X] Reprocess cities with no data (double check);
-- [X] Fix the exception counter;
-- [ ] Implement sys.argv for state code as parameter;
-- [ ] Implement the logging library;
-- [ ] Reprocess any state testing the exception countes, sys.arv and logging;
