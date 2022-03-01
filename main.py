@@ -1,6 +1,7 @@
 import chardet
 import glob
 import os
+from numpy import empty
 import pandas as pd
 import random
 import sys
@@ -204,10 +205,12 @@ else:
 
         cities, year = get_restart_point(state_code, all_cities)
 
-        print(f"""{len(all_cities)} cities at total.
-        {len(all_cities) - len(cities)} collected.
-        {len(cities)} cities remaining.
-        Starting at {cities[0]}/{year}.\
-        """)
+        if len(cities) > 0:
+            print(f"{len(all_cities)} cities at total.")
+            print(f"{len(all_cities) - len(cities)} collected.")
+            print(f"{len(cities)} cities remaining.")
+            print(f"Starting at {cities[0]}/{year}.")
 
-        main(state_code, cities, year, exceptions = 0)
+            main(state_code, cities, year, exceptions = 0)
+        else:
+            print(f'The data for state {state_code} has already been collected.')
