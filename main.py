@@ -1,5 +1,6 @@
 import chardet
 import glob
+import logging
 import os
 from numpy import empty
 import pandas as pd
@@ -11,6 +12,11 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
+
+logging.basicConfig(
+    level = logging.INFO,
+    format = '%(asctime)s.%(msecs)03d - %(message)s', datefmt = '%y-%m-%d %H:%M:%S'
+)
 
 def clear_files():
     temp_folder = os.getcwd() + '/temp'
@@ -41,7 +47,7 @@ def is_file_correct(file, year, city):
         return False
 
 def get_file(state, city, year):
-    print(f"Getting data from {city}/{year}...", end = ' ')
+    logging.info(f"Getting data from {city}/{year}...")
     
     browser = webdriver.Chrome(options = chrome_options)
     browser.get('http://tabnet.datasus.gov.br/cgi/deftohtm.exe?popsvs/cnv/popbr.def')
@@ -69,17 +75,16 @@ def get_file(state, city, year):
 
     if is_file_correct(file, year, city):
         os.rename(f"{file}", f"{os.getcwd()}/data/{state}/{city}/{str(year)}.csv")
-        print('Done.')
+        logging.info('Done.')
     else:
-        print('Error.')
+        logging.info('Error.')
         clear_files()
         get_file(state, city, year)
 
     browser.close()
 
 def get_cities(state_code):
-    print(f"Getting cities from state code {state_code}...", end = ' ')
-  
+    logging.info(f"Getting cities from state code {state_code}...")
     browser = webdriver.Chrome(options = chrome_options)
     browser.get('http://tabnet.datasus.gov.br/cgi/deftohtm.exe?popsvs/cnv/popbr.def')
     browser.find_element(By.ID, 'fig3').click()
@@ -93,7 +98,7 @@ def get_cities(state_code):
             cities.append(city_code)
             
     browser.close()
-    print('Done.')
+    logging.info('Done.')
     
     if state_code == 53:
         return cities
@@ -146,7 +151,7 @@ def collect_data(state, cities, year):
                 with open(f"data/{state}/{city}/{i}.csv", 'w') as f:
                     f.write(f"No data for city {city} in {i}.")
                 
-                print(f"No data for city {city} in {i}.")
+                logging.exception(f"No data for city {city} in {i}.")
 
             year = 2000 if i == 2020 else year
 
@@ -156,22 +161,22 @@ def main(state, cities, year, exceptions):
     try:
         collect_data(state, cities, year)
     except KeyboardInterrupt:
-        print("\nScript interrupted.")
+        logging.exception('Script interrupted.')
     except Exception as e:
-        print(f"Exception Thrown ({exceptions + 1}).")
+        logging.exception(f"Exception Thrown ({exceptions + 1}).")
         
         if exceptions < 4:
             cities, year = get_restart_point(state, cities)
             main(state, cities, year, exceptions + 1)
         else:
-            print(f"Stopped after {exceptions + 1} exceptions.")
-            print("The script is going to pause for 30 minutes and then return.")
+            logging.info(f"Stopped after {exceptions + 1} exceptions.")
+            logging.info('The script is going to pause for 30 minutes and then return.')
             
             time.sleep(1800)
             cities, year = get_restart_point(state, cities)
             main(state, cities, year, exceptions = 0)            
     else:
-        print("All data collected.")
+        logging.info('All data collected.')
 
 chrome_options = Options()
 chrome_options.add_argument('--headless')
@@ -193,12 +198,12 @@ state_codes = [
 ]
 
 if len(sys.argv) != 2:
-    print('Wrong number of arguments.')
+    logging.info('Wrong number of arguments.')
 else:
     state_code = int(sys.argv[1])
 
     if state_code not in state_codes:
-        print('The argument must a state code.')
+        logging.info('The argument must a state code.')
     else:
         with open(f"codes/{state_code}.txt", 'r') as f:
             all_cities = f.read().splitlines()
@@ -206,11 +211,11 @@ else:
         cities, year = get_restart_point(state_code, all_cities)
 
         if len(cities) > 0:
-            print(f"{len(all_cities)} cities at total.")
-            print(f"{len(all_cities) - len(cities)} collected.")
-            print(f"{len(cities)} cities remaining.")
-            print(f"Starting at {cities[0]}/{year}.")
+            logging.info(f"{len(all_cities)} cities at total.")
+            logging.info(f"{len(all_cities) - len(cities)} collected.")
+            logging.info(f"{len(cities)} cities remaining.")
+            logging.info(f"Starting at {cities[0]}/{year}.")
 
             main(state_code, cities, year, exceptions = 0)
         else:
-            print(f'The data for state {state_code} has already been collected.')
+            logging.info(f"The data for state {state_code} has already been collected.")

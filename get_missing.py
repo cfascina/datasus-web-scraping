@@ -1,6 +1,7 @@
 import chardet
 import csv
 import glob
+import logging
 import os
 import pandas as pd
 import random
@@ -10,6 +11,11 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
+
+logging.basicConfig(
+    level = logging.INFO,
+    format = '%(asctime)s.%(msecs)03d - %(message)s', datefmt = '%y-%m-%d %H:%M:%S'
+)
 
 chrome_options = Options()
 chrome_options.add_argument('--headless')
@@ -51,7 +57,7 @@ def is_file_correct(file, year, city):
         return False
 
 def get_file(state, city, year):
-    print(f"Getting data from {city}/{year}.")
+    logging.info(f"Getting data from {city}/{year}.")
     
     browser = webdriver.Chrome(options = chrome_options)
     browser.get('http://tabnet.datasus.gov.br/cgi/deftohtm.exe?popsvs/cnv/popbr.def')
@@ -102,7 +108,7 @@ def get_missing():
     return missing
 
 def main():
-    print("Search started.")
+    logging.info('Search started.')
     
     for item in get_missing():
         try:
@@ -113,8 +119,8 @@ def main():
 
             pass
     
-    print("Search completed.")
+    logging.info('Search completed.')
 
-print(f"{len(get_missing())} items without Census data were found.")
+logging.info(f"{len(get_missing())} items without Census data were found.")
 main()
-print(f"After reprocessing, {len(get_missing())} items remained without Census data.")
+logging.info(f"After reprocessing, {len(get_missing())} items remained without Census data.")
